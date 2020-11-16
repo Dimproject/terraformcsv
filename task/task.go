@@ -23,7 +23,7 @@ func Process(srcFile, dstFile string) (string, string) {
 		log.Fatal(err)
 	}
 
-	resultfile, err := os.Create(dstFile)
+	resultfile, err := os.Create(dstFile + ".csv")
 
 	if err != nil {
 		log.Fatalf("failed creating file: %s", err)
@@ -38,14 +38,16 @@ func Process(srcFile, dstFile string) (string, string) {
 			cpu:      record[3],
 			memory:   record[5],
 		}
+		if vm.template == dstFile {
+			fmt.Printf("%s %s %s %s %s\n", vm.vmName, vm.template, vm.ip, vm.cpu, vm.memory)
 
-		fmt.Printf("%s %s %s %s %s\n", vm.vmName, vm.template, vm.ip, vm.cpu, vm.memory)
+			cellSlice := []string{vm.vmName, vm.template, vm.ip, vm.cpu, vm.memory}
+			csvWriter := csv.NewWriter(resultfile)
+			strWrite := [][]string{cellSlice}
+			csvWriter.WriteAll(strWrite)
+			csvWriter.Flush()
+		}
 
-		cellSlice := []string{vm.vmName, vm.template, vm.ip, vm.cpu, vm.memory}
-		csvWriter := csv.NewWriter(resultfile)
-		strWrite := [][]string{cellSlice}
-		csvWriter.WriteAll(strWrite)
-		csvWriter.Flush()
 	}
 	return srcFile, dstFile
 }
